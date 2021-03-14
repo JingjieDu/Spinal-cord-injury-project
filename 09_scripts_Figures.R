@@ -23,6 +23,7 @@ knitr::opts_chunk$set(
 )
 ```
 
+
 ```{r}
 library(pracma)
 library(vegan)
@@ -93,7 +94,16 @@ points(L2_bray,cex= 2.5,pch=21, col="black", bg= colvec_all, lwd = 1)
 # Adding a legend
 legend(-2,1, pt.cex=2.5 , pt.lwd = 1, c("Lam", "T10", "T4"), bty = "n", pch = 21, col="black", pt.bg = c("#999999","#E69F00","#56B4E9"), cex = 1.5)
 ordihull(L2_bray,Colvec_expedition$Zones, display = "sites", col = NULL,label=T)
+
+
+
+
+
 ```
+
+
+
+
 
 ##C.Bray_Curtis dissimalarity between the control group and SCI groups
 ```{r}
@@ -118,6 +128,12 @@ phylum_singleM1=t(phylum_singleM)
 phylum_singleM2=as.data.frame(phylum_singleM1)
 phylum_singleM2$Sample=factor(rownames(phylum_singleM2))
 phylum_singleM2_m=melt(phylum_singleM2)
+
+rare_phylum_singleM=data.frame(phylum_singleM2$` p__Actinobacteria`,phylum_singleM2$` p__Proteobacteria`,phylum_singleM2$` p__Firmicutes_B`,phylum_singleM2$others)
+rownames(rare_phylum_singleM)=rownames(phylum_singleM2)
+rare_phylum_singleM$Sample=factor(rownames(rare_phylum_singleM))
+rare_phylum_singleM_m=melt(rare_phylum_singleM)
+
 ```
 
 ## D.Intestinal bacterial community composition at the phylum level.
@@ -130,6 +146,19 @@ phylum_singleM_p=phylum_singleM_p+geom_segment(y=0,yend=1.00,x=5.5,xend=5.5)+geo
 phylum_singleM_p+theme(plot.title = element_text(size = 20,hjust=0.5))+scale_x_discrete(labels=c("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"))+theme(axis.text.x = element_text(color="black",size = 12))+guides(fill=guide_legend(title=NULL))+theme(legend.title = element_text(size=18))+ theme(legend.text = element_text(size=14),legend.position="right")+guides(fill=guide_legend("Phylum"))+scale_fill_brewer(palette = "Set2")
 #On the x-axis, the numbers 1–15 represent individual mice within each group. numbers 1-5 represents Lam, numbers 6-10 represents T10 and numbers 11-15 represents T4
 ```
+
+```{r}
+rare_phylum_singleM_p=ggplot(rare_phylum_singleM_m)+geom_bar(aes(x=Sample,y=value,fill=variable),stat="identity")+labs(title = NULL,x=NULL,y = "Relative abundance")+theme_bw()
+# legend labels
+#phylum_singleM_p=phylum_singleM_p+geom_segment(y=0,yend=1.00,x=5.5,xend=5.5)+geom_segment(y=0,yend=0.1,x=10.5,xend=10.5)
+
+rare_phylum_singleM_p+theme(plot.title = element_text(size = 20,hjust=0.5))+scale_x_discrete(labels=c("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"))+theme(axis.text.x = element_text(color="black",size = 12))+guides(fill=guide_legend(title=NULL))+theme(legend.title = element_text(size=18))+ theme(legend.text = element_text(size=14),legend.position="right")+guides(fill=guide_legend("Phylum"))+scale_colour_manual(values = c("#A6D854","#FFD92F","#E5C494","#B3B3B3"))
+#On the x-axis, the numbers 1–15 represent individual mice within each group. numbers 1-5 represents Lam, numbers 6-10 represents T10 and numbers 11-15 represents T4
+```
+
+
+
+
 
 
 ```{r}
@@ -177,7 +206,7 @@ wilcox.test(phylum_data_test6$` p__Proteobacteria`~phylum_data_test6$group)
 ```
 
 ```{r}
-#Wilcoxon rank sum test corrected by fdr method
+#Wilcoxon rank sum test corrected by BH
 singleM_phylum=cbind(phylum_singleM1,Colvec_expedition)
 colnames(singleM_phylum)=c("Bacteroidetes","Firmicutes","Firmicutes_A","Actinobacteria","Proteobacteria","Firmicutes_B","others","Zones")
 pairwise.wilcox.test(singleM_phylum$Actinobacteria, singleM_phylum$Zones,p.adjust.method = "fdr")
@@ -197,7 +226,7 @@ Firmicutes_boxplot+scale_y_continuous(expand = c(0,0), limits = c(0,0.25))+geom_
 ```{r}
 Actinobacteria=ggplot(singleM_phylum, aes(x=Zones, y=Actinobacteria)) + geom_boxplot(fill=c("#999999", "#E69F00", "#56B4E9"))+geom_dotplot(binaxis='y', stackdir='center', dotsize=0.6)+labs(title = NULL,x=NULL,y = "Actinobacteria \n relative abundances")+theme_classic()
 Actinobacteria_boxplot=Actinobacteria+theme(plot.title = element_text(size = 20,hjust=0.5))+theme(axis.text.x = element_text(color="black",size = 20))+theme(axis.text.y = element_text(color="black",size = 16),axis.title.y=element_text(size=18))
-Actinobacteria_boxplot+scale_y_continuous(expand = c(0,0), limits = c(0,0.035))+geom_segment(y=0.032,yend=0.032,x=1,xend=2)+geom_text(x=1.5,y=0.032,label="*",size=12)+geom_segment(y=0.026,yend=0.026,x=1,xend=3)+geom_text(x=2,y=0.026,label="*",size=12)+theme(plot.margin=unit(c(1,1,1.5,1.2),"cm"))+theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))
+Actinobacteria_boxplot+scale_y_continuous(expand = c(0,0), limits = c(0,0.03))+geom_segment(y=0.025,yend=0.025,x=1,xend=2)+geom_text(x=1.5,y=0.025,label="*",size=12)+geom_segment(y=0.027,yend=0.027,x=1,xend=3)+geom_text(x=2,y=0.027,label="*",size=12)+theme(plot.margin=unit(c(1,1,1.5,1.2),"cm"))+theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))
 #*p = 0.05 by Wilcoxon rank sum test . Each dot in the boxplot represents an individual mouse sample, and each group (Lam, T4, T10) contains five samples. 
 ```
 
@@ -260,7 +289,7 @@ rownames(genus_singleM.wilcox3)[genus_singleM.wilcox3$p.value< 0.05]
 ```
 
 ```{r}
-#pairwise.wilcox.test with fdr correction
+#pairwise.wilcox.test with BH correction
 genus_singleM4=genus_singleM*100
 genus_singleM5=t(genus_singleM4)
 singleM_genus=cbind(genus_singleM5,Colvec_expedition)
@@ -287,9 +316,33 @@ pairwise.wilcox.test(singleM_genus$Flavonifractor, singleM_genus$Zones,p.adjust.
 pairwise.wilcox.test(singleM_genus$Ruminococcus_A, singleM_genus$Zones,p.adjust.method = "fdr")
 ```
 
+
+
 #Figure 2. Genus-level bacterial abundances are altered after SCI.
 
-##A-C. Relative abundances of select groups indicating that Lactobacillus, CAG-1031, and Turicibacter decreased after SCI 
+##A.Differential abundances of bacterial genera (p<0.05 by Wilcoxon signed-rank test,FDR<0.05)
+```{r  fig.height = 12, fig.width = 5, fig.align = "center"}
+#B.Differential abundances of bacterial genera (p<0.05 by Wilcoxon signed-rank test) in either two groups are indicated in red. Each row representing a unique bacterial genus was Z-score normalized. Bacterial genera on the y-axis are clustered using Euclidean distances.  
+#use pheatmap
+
+genus_singleM_FDR_0.05=data_frame(singleM_genus$Clostridium_M,singleM_genus$Eubacterium_I,singleM_genus$Slackia,singleM_genus$`CAG-791`,singleM_genus$Flavonifractor,singleM_genus$Lactobacillus,singleM_genus$Turicibacter,singleM_genus$` CAG-1031`,singleM_genus$Bacteroides,singleM_genus$Eubacterium_R,singleM_genus$Eubacterium_F)
+colnames(genus_singleM_FDR_0.05)=c("Clostridium_M","Eubacterium_I","Slackia","CAG-791","Flavonifractor","Lactobacillus","Turicibacter","CAG-1031","Bacteroides","Eubacterium_R","Eubacterium_F")
+rownames(genus_singleM_FDR_0.05)=rownames(singleM_genus)
+
+genus_singleM_FDR_0.05_t=t(genus_singleM_FDR_0.05)
+
+cal_z_score <- function(x){
+  (x - mean(x)) / sd(x)
+}
+
+genus_singleM_FDR_0.05_norm <- t(apply(genus_singleM_FDR_0.05_t, 1, cal_z_score))
+
+pheatmap(genus_singleM_FDR_0.05_norm,cluster_cols=FALSE, legend = TRUE,border_color = NA)
+
+```
+
+
+##B-D. Relative abundances of select groups indicating that  CAG-1031, Lactobacillus, and Turicibacter decreased after SCI 
 ```{r} 
 #Box-plots for significant genus
 
@@ -315,34 +368,28 @@ Turicibacter_boxplot=Turicibacter+theme(plot.title = element_text(size = 28,hjus
 Turicibacter_boxplot+scale_y_continuous(expand = c(0,0), limits = c(0,4.6))+geom_segment(y=3.8,yend=3.8,x=1,xend=2)+geom_segment(y=4.2,yend=4.2,x=1,xend=3)+geom_text(x=1.5,y=3.8,label="*",size=12)+geom_text(x=2,y=4.2,label="**",size=12)+theme(plot.margin=unit(c(1,1,1.5,1.2),"cm"))+theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))
 ```
 
-##D-E.Weissella and Bacteroides increased after SCI  compared to Lam controls. 
+##E-G. Bacteroides, Eubacterium_F and Eubacterium_R increased after SCI  compared to Lam controls. 
 ```{r}
-#D. Weissella
-Weissella=ggplot(singleM_genus, aes(x=Zones, y=Weissella)) + geom_boxplot(fill=c("#999999", "#E69F00", "#56B4E9"))+geom_dotplot(binaxis='y', stackdir='center', dotsize=0.6)+
-  labs(title =NULL,x=NULL,y = "Weissella \n relative abundances(%)")+theme_classic()
-Weissella_boxplot=Weissella+theme(plot.title = element_text(size = 28,hjust=0.5))+theme(axis.text.x = element_text(color="black",size = 20))+theme(axis.text.y = element_text(color="black",size = 18),axis.title.y=element_text(size=20))
-Weissella_boxplot+scale_y_continuous(expand = c(0,0), limits = c(0,12.5))+geom_segment(y=10.5,yend=10.5,x=2,xend=3)+geom_segment(y=11.2,yend=11.2,x=1,xend=3)+geom_text(x=2,y=11.8,label="p=0.07",size=8)+geom_text(x=2.5,y=10.5,label="*",size=12)+theme(plot.margin=unit(c(1,1,1.5,1.2),"cm"))+theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))
-
-#E. Bacteroides
+#e. Bacteroides
 Bacteroides=ggplot(singleM_genus, aes(x=Zones, y=Bacteroides)) + geom_boxplot(fill=c("#999999", "#E69F00", "#56B4E9"))+geom_dotplot(binaxis='y', stackdir='center', dotsize=0.6)+
   labs(title = NULL,x=NULL,y = "Bacteroides \n relative abundances(%)")+theme_classic()
 
 Bacteroides_boxplot=Bacteroides+theme(plot.title = element_text(size = 28,hjust=0.5))+theme(axis.text.x = element_text(color="black",size = 20))+theme(axis.text.y = element_text(color="black",size = 18),axis.title.y=element_text(size=20))
 Bacteroides_boxplot+scale_y_continuous(expand = c(0,0), limits = c(0,7))+geom_segment(y=6.4,yend=6.4,x=1,xend=3)+geom_text(x=2,y=6.4,label="*",size=12)+theme(plot.margin=unit(c(1,1,1.5,1.2),"cm"))+theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))
-```
 
-##F members in class Clostridia increased after SCI compared to Lam controls
-```{r}
-singleM_genus_Clostridia=data_frame(singleM_genus$Eubacterium_R,singleM_genus$Eubacterium_F,singleM_genus$UBA9475,singleM_genus$Neglecta,singleM_genus$Lachnospira,singleM_genus$Zones)
-colnames(singleM_genus_Clostridia)=c("Eubacterium_R","Eubacterium_F","UBA9475","Neglecta","Lachnospira","Zones")
-row.names(singleM_genus_Clostridia)=row.names(singleM_genus)
-singleM_genus_Clostridia1=gather(singleM_genus_Clostridia,key="Clostridia",value = "abundances",-Zones)
+#f. Eubacterium_F
+Eubacterium_F=ggplot(singleM_genus, aes(x=Zones, y=Eubacterium_F)) + geom_boxplot(fill=c("#999999", "#E69F00", "#56B4E9"))+geom_dotplot(binaxis='y', stackdir='center', dotsize=0.6)+
+  labs(title = NULL,x=NULL,y = "Eubacterium_F \n relative abundances(%)")+theme_classic()
 
-genus_Clostridia_boxplot=ggplot(singleM_genus_Clostridia1, aes(x=Clostridia, y=abundances,fill=factor(Zones)))+theme_classic()+scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9"))+geom_boxplot(position=position_dodge(0.8))+ geom_dotplot(binaxis='y', stackdir='center', position=position_dodge(0.8),binpositions = "bygroup", dotsize=0.4)+labs(title =NULL,x=NULL,y = "Class Clostridia \n relative abundances(%)")+theme_classic()
+Eubacterium_F_boxplot=Eubacterium_F+theme(plot.title = element_text(size = 28,hjust=0.5))+theme(axis.text.x = element_text(color="black",size = 20))+theme(axis.text.y = element_text(color="black",size = 18),axis.title.y=element_text(size=20))
+Eubacterium_F_boxplot+scale_y_continuous(expand = c(0,0), limits = c(0,5))+geom_segment(y=4.5,yend=4.5,x=1,xend=3)+geom_text(x=2,y=4.5,label="*",size=12)+theme(plot.margin=unit(c(1,1,1.5,1.2),"cm"))+theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))
 
-genus_Clostridia_boxplot=genus_Clostridia_boxplot+theme(plot.title = element_text(size = 28,hjust=0.5))+theme(axis.text.x = element_text(color="black",size = 10,angle=45,hjust = 1))+theme(axis.text.y = element_text(color="black",size = 10),axis.title.y=element_text(size=12))
 
-genus_Clostridia_boxplot+scale_y_continuous(expand = c(0,0), limits = c(0,4.5))+geom_text(x=1.275,y=2.2,label="*",size=8)+geom_text(x=2,y=3.6,label="*",size=8)+geom_text(x=3,y=1.1,label="*",size=8)+geom_text(x=4.275,y=2.2,label="*",size=8)+geom_text(x=5.275,y=1.2,label="*",size=8)+theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))
+#g.Eubacterium_R
+Eubacterium_R=ggplot(singleM_genus, aes(x=Zones, y=Eubacterium_R)) + geom_boxplot(fill=c("#999999", "#E69F00", "#56B4E9"))+geom_dotplot(binaxis='y', stackdir='center', dotsize=0.6)+
+  labs(title = NULL,x=NULL,y = "Eubacterium_R \n relative abundances(%)")+theme_classic()
+Eubacterium_R_boxplot=Eubacterium_R+theme(plot.title = element_text(size = 28,hjust=0.5))+theme(axis.text.x = element_text(color="black",size = 20))+theme(axis.text.y = element_text(color="black",size = 18),axis.title.y=element_text(size=20))
+Eubacterium_R_boxplot+scale_y_continuous(expand = c(0,0), limits = c(0,4))+geom_segment(y=3.6,yend=3.6,x=1,xend=2)+geom_text(x=1.5,y=3.6,label="**",size=12)+theme(plot.margin=unit(c(1,1,1.5,1.2),"cm"))+theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))
 
 ```
 
@@ -460,10 +507,42 @@ pairwise.wilcox.test(mOTUs_species5$`maxbin.166`, mOTUs_species5$Zones,p.adjust.
 
 ```
 
+```{r}
+#differential MAGs
+MAGS_differential=data_frame(mOTUs_species5$`Lactobacillus johnsonii`,mOTUs_species5$`maxbin.009`,mOTUs_species5$`maxbin.121`, mOTUs_species5$`Weissella cibaria`, mOTUs_species5$`Lactococcus lactis_A`,mOTUs_species5$`maxbin.004`,mOTUs_species5$`maxbin.007`,mOTUs_species5$`maxbin.011`,mOTUs_species5$`maxbin.014`,mOTUs_species5$`maxbin.017`,mOTUs_species5$`maxbin.019`,mOTUs_species5$`maxbin.020`,mOTUs_species5$`maxbin.026`,mOTUs_species5$`maxbin.029`,mOTUs_species5$`maxbin.033`,mOTUs_species5$`maxbin.034`,mOTUs_species5$`maxbin.043`,mOTUs_species5$`maxbin.044`,mOTUs_species5$`maxbin.056`,mOTUs_species5$`maxbin.057`,mOTUs_species5$`maxbin.062`,mOTUs_species5$`maxbin.067`,mOTUs_species5$`maxbin.071`,mOTUs_species5$`maxbin.087`,mOTUs_species5$`maxbin.123`,mOTUs_species5$`maxbin.124`,mOTUs_species5$`maxbin.133`,mOTUs_species5$`maxbin.135`,mOTUs_species5$`maxbin.141`,mOTUs_species5$`maxbin.151`,mOTUs_species5$`maxbin.152`,mOTUs_species5$`maxbin.157`,mOTUs_species5$`maxbin.166`)
 
-##A-C, Beneficial bacterial species(MAGs) decreased after SCI
+rownames(MAGS_differential)=rownames(mOTUs_species5)
 
-###A. Lactobacillus johnsonii
+MAGS_differential_t=t(MAGS_differential)
+my_sample_col <-  data.frame(sample = rep(c("Lam","T10","T4"), each=5))
+row.names(my_sample_col) <- colnames(MAGS_differential_t)
+pheatmap(MAGS_differential_t,cluster_rows=T,cluster_cols=FALSE,annotation_col = my_sample_col)
+
+```
+
+
+##A.Differential MAGs with FDR<0.05 
+```{r , fig.height = 12, fig.width = 10, fig.align = "center"}
+#Only keep MAGs with FDR<0.05 
+
+mOTUs_species_new=read.table("MAGs_species_FDR_0.05.txt",header=F,row.names=1,sep="\t")
+mOTUs_species_new$Maxbins=as.factor(rownames((mOTUs_species_new)))
+mOTUs_species_new1=merge(mOTUs_species_new,mOTUs,by="Maxbins")
+mOTUs_species_new2=mOTUs_species_new1[,-1]
+row.names(mOTUs_species_new2)=mOTUs_species_new2[,1]
+mOTUs_species_new3=mOTUs_species_new2[,-1]
+
+mOTUs_species_new_norm <- t(apply(mOTUs_species_new3, 1, cal_z_score))
+my_sample_col <-  data.frame(sample = rep(c("Lam","T10","T4"), each=5))
+row.names(my_sample_col) <- colnames(mOTUs_species_new3)
+#pdf(file="Figure S3_new",height = 12,width = 10)
+pheatmap(mOTUs_species_new_norm,cluster_cols=FALSE, annotation_col = my_sample_col,legend = TRUE,cluster_rows = T,border_color = NA,cellwidth = 12, cellheight = 15)
+
+```
+
+
+##B-D, Beneficial bacterial species(MAGs) decreased after SCI
+###B. Lactobacillus johnsonii
 ```{r}
 Lactobacillus_johnsonii=ggplot(mOTUs_species5, aes(x=Zones, y=`Lactobacillus johnsonii`)) + geom_boxplot(fill=c("#999999", "#E69F00", "#56B4E9"))+geom_dotplot(binaxis='y', stackdir='center', dotsize=0.6)+
   labs(title = "Lactobacillus johnsonii",x=NULL,y ="RPKM")+theme_classic()
@@ -471,7 +550,7 @@ Lactobacillus_johnsonii_boxplot=Lactobacillus_johnsonii+theme(plot.title = eleme
 Lactobacillus_johnsonii_boxplot+scale_y_continuous(expand = c(0,0), limits = c(0,45))+geom_segment(y=40,yend=40,x=1,xend=2)+geom_segment(y=42,yend=42,x=1,xend=3)+geom_text(x=2,y=42,label="**",size=10)+geom_text(x=1.5,y=40,label="*",size=10)+theme(plot.margin=unit(c(1,1,1.5,1.2),"cm"))+theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))
 ```
 
-###B. maxbin.009 CAG-1031
+###C. maxbin.009 CAG-1031
 ```{r}
 maxbin009=ggplot(mOTUs_species5, aes(x=Zones, y=`maxbin.009`)) + geom_boxplot(fill=c("#999999", "#E69F00", "#56B4E9"))+geom_dotplot(binaxis='y', stackdir='center', dotsize=0.6)+labs(title = "CAG-1031 maxbin.009",x=NULL,y ="RPKM")+theme_classic()
 
@@ -479,23 +558,23 @@ maxbin009_boxplot=maxbin009+theme(plot.title = element_text(size = 24,hjust=0.5)
 maxbin009_boxplot+scale_y_continuous(expand = c(0,0), limits = c(0,82))+geom_segment(y=78,yend=78,x=1,xend=3)+geom_text(x=2,y=78,label="**",size=10)+theme(plot.margin=unit(c(1,1,1.5,1.2),"cm"))+theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))
 ```
 
-###C. maxbin.121 CAG-1031
+###D. maxbin.121 CAG-1031
 ```{r}
 maxbin121=ggplot(mOTUs_species5, aes(x=Zones, y=`maxbin.121`)) + geom_boxplot(fill=c("#999999", "#E69F00", "#56B4E9"))+geom_dotplot(binaxis='y', stackdir='center', dotsize=0.6)+labs(title = "CAG-1031 maxbin.121",x=NULL,y ="RPKM")+theme_classic()
 maxbin121_boxplot=maxbin121+theme(plot.title = element_text(size = 24,hjust=0.5))+theme(axis.text.x = element_text(color="black",size = 20))+theme(axis.text.y = element_text(color="black",size = 20),axis.title.y=element_text(size=20))
 maxbin121_boxplot+scale_y_continuous(expand = c(0,0), limits = c(0,64))+geom_segment(y=60,yend=60,x=1,xend=3)+geom_text(x=2,y=60,label="**",size=10)+theme(plot.margin=unit(c(1,1,1.5,1.2),"cm"))+theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))
 ```
 
-##D-F, Potential pathogenic bacterial species(MAGs) increased after SCI
+##E-G, Potential pathogenic bacterial species(MAGs) increased after SCI
 
-###D. Weissella cibaria
+###E. Weissella cibaria
 ```{r}
 Weissella_cibaria=ggplot(mOTUs_species5, aes(x=Zones, y=`Weissella cibaria`)) + geom_boxplot(fill=c("#999999", "#E69F00", "#56B4E9"))+geom_dotplot(binaxis='y', stackdir='center', dotsize=0.6)+labs(title = "Weissella cibaria",x=NULL,y ="RPKM")+theme_classic()
 Weissella_cibaria_boxplot=Weissella_cibaria+theme(plot.title = element_text(size = 24,hjust=0.5))+theme(axis.text.x = element_text(color="black",size = 20))+theme(axis.text.y = element_text(color="black",size = 20),axis.title.y=element_text(size=20))
 Weissella_cibaria_boxplot+scale_y_continuous(expand = c(0,0), limits = c(0,41))+geom_segment(y=37,yend=37,x=2,xend=3)+geom_segment(y=39,yend=39,x=1,xend=3)+geom_text(x=2,y=39,label="*",size=12)+geom_text(x=2.5,y=37,label="*",size=10)+theme(plot.margin=unit(c(1,1,1.5,1.2),"cm"))+theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))
 ```
 
-###E. Lactococcus lactis_A
+###F. Lactococcus lactis_A
 ```{r}
 Lactococcus_lactis_A=ggplot(mOTUs_species5, aes(x=Zones, y=`Lactococcus lactis_A`)) + geom_boxplot(fill=c("#999999", "#E69F00", "#56B4E9"))+geom_dotplot(binaxis='y', stackdir='center', dotsize=0.6)+labs(title = "Lactococcus lactis_A",x=NULL,y ="RPKM")+theme_classic()
 Lactococcus_lactis_A_boxplot=Lactococcus_lactis_A+theme(plot.title = element_text(size = 24,hjust=0.5))+theme(axis.text.x = element_text(color="black",size = 20))+theme(axis.text.y = element_text(color="black",size = 20),axis.title.y=element_text(size=20))
@@ -503,7 +582,7 @@ Lactococcus_lactis_A_boxplot=Lactococcus_lactis_A+theme(plot.title = element_tex
   Lactococcus_lactis_A_boxplot+scale_y_continuous(expand = c(0,0), limits = c(0,40))+geom_segment(y=36,yend=36,x=2,xend=3)+geom_segment(y=38,yend=38,x=1,xend=3)+geom_text(x=2,y=38,label="**",size=10)+geom_text(x=2.5,y=36,label="**",size=10)+theme(plot.margin=unit(c(1,1,1.5,1.2),"cm"))+theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))
 ```
 
-###F. Bacteroides thetaiotaomicron
+###G. Bacteroides thetaiotaomicron
 ```{r}
 Bacteroides_thetaiotaomicron=ggplot(mOTUs_species5, aes(x=Zones, y=`Bacteroides thetaiotaomicron`)) + geom_boxplot(fill=c("#999999", "#E69F00", "#56B4E9"))+geom_dotplot(binaxis='y', stackdir='center', dotsize=0.6)+
   labs(title = "Bacteroides thetaiotaomicron",x=NULL,y ="RPKM")+theme_classic()
@@ -558,6 +637,26 @@ summary(PCs_anosim)
 #Significance: 0.001 
 # Each data point indicates an individual mouse sample.
 ```
+
+##B.Between_group Bray_curtis dissimilarity
+```{r}
+
+Bray_PCs_SCI=read.csv("Bray_PCs_SCI.csv",header=T,sep=",")
+colnames(Bray_PCs_SCI)=c("Bray_curtis","Zones")
+wilcox.test(Bray_PCs_SCI$Bray_curtis~Bray_PCs_SCI$Zone)
+pairwise.wilcox.test(Bray_PCs_SCI$Bray_curtis, Bray_PCs_SCI$Zones,p.adjust.method = "fdr")
+#p-value = 0.043
+
+boxplot_Bray_PCs_SCI=ggplot(Bray_PCs_SCI,  aes(x=Zones, y=Bray_curtis)) + geom_boxplot(fill=c( "#E69F00", "#56B4E9"))+geom_jitter(width = 0.06)+labs(title=NULL,x=NULL,y =c( "Bray_curtis dissimilarity"))+theme_classic()+geom_point(shape=16,fill="black",size=2)
+
+boxplot_Bray_PCs_SCI1=boxplot_Bray_PCs_SCI+theme(plot.title = element_text(size = 28,hjust=0.5))+theme(axis.text.x = element_text(color="black",size = 20,face = "bold"))+theme(axis.text.y = element_text(color="black",size = 18),axis.title.y=element_text(size=20))
+#Including boxplots
+boxplot_Bray_PCs_SCI1+scale_y_continuous(expand = c(0,0), limits=c(0.2,0.4))+theme(plot.margin=unit(c(1,1,1.5,1.2),"cm"))+theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0))) +geom_segment(y=0.38,yend=0.38,x=1,xend=2)+geom_text(x=1.5,y=0.38,label="*",size=10)
+
+```
+
+
+
 
 ```{r}
 selected_functions=read.csv("selected_functions_MAGs.csv",header=T,row.names=NULL,sep=",")
@@ -625,40 +724,44 @@ selected_functions=selected_functions[,-1]
 selected_functions4=t(selected_functions)
 selected_functions5=cbind(selected_functions4, Colvec_expedition)
 
-pairwise.wilcox.test(as.numeric(selected_functions5$`choloylglycine hydrolase`),selected_functions5$Zones,p.adjust.method = "fdr")
-pairwise.wilcox.test(as.numeric(selected_functions5$`prephenate dehydratase`), selected_functions5$Zones,p.adjust.method = "fdr")
-pairwise.wilcox.test(as.numeric(selected_functions5$`anthranilate synthase component II `), mOTUs_species5$Zones,p.adjust.method = "fdr")
-pairwise.wilcox.test(as.numeric(selected_functions5$`indole-3-glycerol phosphate synthase `), selected_functions5$Zones,p.adjust.method = "fdr")
-pairwise.wilcox.test(as.numeric(selected_functions5$`chorismate synthase`), selected_functions5$Zones,p.adjust.method = "fdr")
-pairwise.wilcox.test(as.numeric(selected_functions5$`pyridoxine 4-dehydrogenase`),selected_functions5$Zones,p.adjust.method = "fdr")
-pairwise.wilcox.test(as.numeric(selected_functions5$`dihydrofolate reductase`), selected_functions5$Zones,p.adjust.method = "fdr")
-pairwise.wilcox.test(as.numeric(selected_functions5$`dihydroneopterin aldolase `),selected_functions5$Zones,p.adjust.method = "fdr")
-pairwise.wilcox.test(as.numeric(selected_functions5$lactocepin), selected_functions5$Zones,p.adjust.method = "fdr")
-pairwise.wilcox.test(as.numeric(selected_functions5$`lactose-specific components`), selected_functions5$Zones,p.adjust.method = "fdr")
-pairwise.wilcox.test(as.numeric(selected_functions5$`N-acetylgalactosamine-specific components`), selected_functions5$Zones,p.adjust.method = "fdr")
-pairwise.wilcox.test(as.numeric(selected_functions5$`galactosamine-specific components`), selected_functions5$Zones,p.adjust.method = "fdr")
-pairwise.wilcox.test(as.numeric(selected_functions5$`galactitol-specific components`), selected_functions5$Zones,p.adjust.method = "fdr")
+pairwise.wilcox.test(as.numeric(selected_functions5$`choloylglycine hydrolase`),selected_functions5$Zones,p.adjust.method = "BH")
+pairwise.wilcox.test(as.numeric(selected_functions5$`prephenate dehydratase`), selected_functions5$Zones,p.adjust.method = "BH")
+pairwise.wilcox.test(as.numeric(selected_functions5$`anthranilate synthase component II `), mOTUs_species5$Zones,p.adjust.method = "BH")
+pairwise.wilcox.test(as.numeric(selected_functions5$`indole-3-glycerol phosphate synthase `), selected_functions5$Zones,p.adjust.method = "BH")
+pairwise.wilcox.test(as.numeric(selected_functions5$`chorismate synthase`), selected_functions5$Zones,p.adjust.method = "BH")
+pairwise.wilcox.test(as.numeric(selected_functions5$`pyridoxine 4-dehydrogenase`),selected_functions5$Zones,p.adjust.method = "BH")
+pairwise.wilcox.test(as.numeric(selected_functions5$`dihydrofolate reductase`), selected_functions5$Zones,p.adjust.method = "BH")
+pairwise.wilcox.test(as.numeric(selected_functions5$`dihydroneopterin aldolase `),selected_functions5$Zones,p.adjust.method = "BH")
+pairwise.wilcox.test(as.numeric(selected_functions5$lactocepin), selected_functions5$Zones,p.adjust.method = "BH")
+pairwise.wilcox.test(as.numeric(selected_functions5$`lactose-specific components`), selected_functions5$Zones,p.adjust.method = "BH")
+pairwise.wilcox.test(as.numeric(selected_functions5$`N-acetylgalactosamine-specific components`), selected_functions5$Zones,p.adjust.method = "BH")
+pairwise.wilcox.test(as.numeric(selected_functions5$`galactosamine-specific components`), selected_functions5$Zones,p.adjust.method = "BH")
+pairwise.wilcox.test(as.numeric(selected_functions5$`galactitol-specific components`), selected_functions5$Zones,p.adjust.method = "BH")
 pairwise.wilcox.test(as.numeric(selected_functions5$`mannose-specific components `), selected_functions5$Zones,p.adjust.method = "BH")
-pairwise.wilcox.test(as.numeric(selected_functions5$`mannitol-specific components `), selected_functions5$Zones,p.adjust.method = "fdr")
-pairwise.wilcox.test(as.numeric(selected_functions5$` glucitol/sorbitol-specific components`), selected_functions5$Zones,p.adjust.method = "fdr")
-pairwise.wilcox.test(as.numeric(selected_functions5$`endo-1,4-beta-xylanase`), selected_functions5$Zones,p.adjust.method = "fdr")
-pairwise.wilcox.test(as.numeric(selected_functions5$`arabinan endo-1,5-alpha-L-arabinosidase `), selected_functions3$Zones,p.adjust.method = "fdr")
-pairwise.wilcox.test(as.numeric(selected_functions5$`mannan endo-1,4-beta-mannosidase`), selected_functions5$Zones,p.adjust.method = "fdr")
-pairwise.wilcox.test(as.numeric(selected_functions5$`maltose phosphorylase`), selected_functions5$Zones,p.adjust.method = "fdr")
-pairwise.wilcox.test(as.numeric(selected_functions5$`cellobiose phosphorylase`), selected_functions5$Zones,p.adjust.method = "fdr")
+pairwise.wilcox.test(as.numeric(selected_functions5$`mannitol-specific components `), selected_functions5$Zones,p.adjust.method = "BH")
+pairwise.wilcox.test(as.numeric(selected_functions5$` glucitol/sorbitol-specific components`), selected_functions5$Zones,p.adjust.method = "BH")
+pairwise.wilcox.test(as.numeric(selected_functions5$`endo-1,4-beta-xylanase`), selected_functions5$Zones,p.adjust.method = "BH")
+pairwise.wilcox.test(as.numeric(selected_functions5$`arabinan endo-1,5-alpha-L-arabinosidase `), selected_functions3$Zones,p.adjust.method = "BH")
+pairwise.wilcox.test(as.numeric(selected_functions5$`mannan endo-1,4-beta-mannosidase`), selected_functions5$Zones,p.adjust.method = "BH")
+pairwise.wilcox.test(as.numeric(selected_functions5$`maltose phosphorylase`), selected_functions5$Zones,p.adjust.method = "BH")
+pairwise.wilcox.test(as.numeric(selected_functions5$`cellobiose phosphorylase`), selected_functions5$Zones,p.adjust.method = "BH")
 
 ```
 
-##B. Selected functions which are differentially abundant in different groups
+##C. Selected functions which are differentially abundant in different groups
 ```{r}
+#remove FDR>0.05
+selected_functions_new=read.csv("selected_functions_MAGs_new.csv",header=T,row.names=NULL,sep=",")
+row.names(selected_functions_new)=selected_functions_new[,1]
+selected_functions_new=selected_functions_new[,-1]
 
 cal_z_score <- function(x){
   (x - mean(x)) / sd(x)
 }
 
-selected_functions_norm <- t(apply(selected_functions, 1, cal_z_score))
+selected_functions_norm <- t(apply(selected_functions_new, 1, cal_z_score))
 my_sample_col <-  data.frame(sample = rep(c("Lam","T10","T4"), each=5))
-row.names(my_sample_col) <- colnames(selected_functions)
+row.names(my_sample_col) <- colnames(selected_functions_new)
 pheatmap(selected_functions_norm,cluster_rows=FALSE,cluster_cols=FALSE,border_color = NA,annotation_col = my_sample_col)
 ```
 
@@ -694,6 +797,7 @@ ylabel= paste ("PCo2 (", ylabel,"of variation explained", ")")
 # Applying hierarchical clustering on the dissimilarity matrix for plotting on top of the ordination analysis
 #H_CLustering=hclust(vegdist(d.clr,"bray"))
 # Adding the axes, grid, and other aestethics
+#pdf("plots.pdf",width=7, height=7)
 plot(pOTUs_bray, type="n",xlab="", ylab="",cex.axis=1, tck = -0.01, mgp = c(3, 1, 0),xlim=c(-5,5),
      xaxp  = c(-1, 1, 2), panel.first=grid(col = "white",lty=0))
 axis(1, at=seq(-5, 5, by=1))
@@ -727,6 +831,22 @@ boxplot_Bray_pOTUs1+scale_y_continuous(expand = c(0,0), limits = c(0.1,0.75))+ge
 ```
 Note: A higher score suggests higher dissimilarity of different samples in the same group. 
 
+##Between-group Bray_Curtis dissimilarity 
+##Bray_Curtis dissimalarity between the control group and SCI groups
+```{r}
+Bray_pOTUs_SCI=read.csv("Bray_pOTUs_SCI.csv",header=T,sep=",")
+wilcox.test(Bray_pOTUs_SCI$Bray_curtis~Bray_pOTUs_SCI$Zones)
+pairwise.wilcox.test(Bray_pOTUs_SCI$Bray_curtis,Bray_pOTUs_SCI$Zones,p.adjust.method = "fdr")
+#p-value = 0.13
+boxplot_Bray_pOTUs_SCI=ggplot(Bray_pOTUs_SCI,  aes(x=Zones, y=Bray_curtis)) + geom_boxplot(fill=c( "#E69F00", "#56B4E9"))+geom_jitter(width = 0.06)+labs(title=NULL,x=NULL,y =c( "Bray_curtis dissimilarity"))+theme_classic()+geom_point(shape=16,fill="black",size=2)
+
+boxplot_Bray_pOTUs_SCI1=boxplot_Bray_pOTUs_SCI+theme(plot.title = element_text(size = 28,hjust=0.5))+theme(axis.text.x = element_text(color="black",size = 20,face = "bold"))+theme(axis.text.y = element_text(color="black",size = 18),axis.title.y=element_text(size=20))
+#Including boxplots
+p=boxplot_Bray_pOTUs_SCI1+scale_y_continuous(expand = c(0,0), limits=c(0.3,0.7))+theme(plot.margin=unit(c(1,1,1.5,1.2),"cm"))+theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))
+p
+
+```
+
 
 ```{r}
  # Calculating Shannon's "H"
@@ -747,7 +867,7 @@ Boxplot_pOTUs_Shannon1=Boxplot_pOTUs_Shannon+theme(plot.title = element_text(siz
 Boxplot_pOTUs_Shannon1+scale_y_continuous(expand = c(0,0), limits = c(5,7.2))+geom_segment(y=7,yend=7,x=1,xend=3)+geom_text(x=2,y=7,label="*",size=10)+theme(plot.margin=unit(c(1,1,1.5,1.2),"cm"))+theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))
 
 ```
-Note:Shannon’s H is an index of diversity and a higher Shannon’s H suggests higher diversity of viral populations in the communities
+
 
 ```{r}
 #Differential analysis for viral populations(>5kb) in different treatments 
@@ -842,7 +962,7 @@ idx.sig3 <- which(pOTUs.tt.group3$adj.P.Val < 0.05)
 plot(pOTUs.tt.group3$logFC, -log10(pOTUs.tt.group3$adj.P.Val), pch = 20,xlab = "Difference", ylab = "-log10(P-value)",cex = 1.5,ylim=c(0,3),xlim=c(-2.5,2.5))
 points(pOTUs.tt.group3$logFC[idx.sig3], -log10(pOTUs.tt.group3$adj.P.Val)[idx.sig3], pch = 20, col = 2)
 ```
-Note: A false discovery rate (FDR) was calculated to correct the multiple-testing problem. An FDR cut off of 0.05 was used.
+
 
 ```{r}
 predicted_pOTUs_genus=read.csv("predicted_hosts_genus_RPKM.csv",header=T,sep=",")
@@ -933,7 +1053,26 @@ pairwise.wilcox.test(predicted_pOTUs_genus4$g__Clostridium, predicted_pOTUs_genu
 ```
 
 #Figure 6. Viral host-prediction reveals that phage abundances vary with their hosts 
-##A. Phages that infect CAG-1031, Lactobacillus and Turicibacter decreased after spinal cord injury
+## A.phages with FDR<0.05
+```{r}
+#Only keep phages FDR<0.05
+predicted_pOTUs_FDR_0.05=data_frame(predicted_pOTUs_genus4$g__Acutalibacter,predicted_pOTUs_genus4$g__ASF356,predicted_pOTUs_genus4$g__UBA7160,predicted_pOTUs_genus4$g__UBA3282,predicted_pOTUs_genus4$g__Eubacterium_R,predicted_pOTUs_genus4$`g__CAG-1031`,predicted_pOTUs_genus4$g__Lactobacillus,predicted_pOTUs_genus4$g__Turicibacter,predicted_pOTUs_genus4$g__Weissella,predicted_pOTUs_genus4$g__Lactococcus)
+
+colnames(predicted_pOTUs_FDR_0.05)=c("Acutalibacter","ASF356","UBA7160","UBA3282","Eubacterium_R","CAG-1031","Lactobacillus","Turicibacter","Weissella","Lactococcus")
+row.names(predicted_pOTUs_FDR_0.05)=row.names(singleM_genus)
+predicted_pOTUs_FDR_0.05_t=t(predicted_pOTUs_FDR_0.05)
+cal_z_score <- function(x){
+  (x - mean(x)) / sd(x)
+}
+
+predicted_pOTUs_FDR_0.05_norm <- t(apply(predicted_pOTUs_FDR_0.05_t, 1, cal_z_score))
+
+pheatmap(predicted_pOTUs_FDR_0.05_norm,cluster_cols=FALSE, legend = TRUE,annotation_col = my_sample_col,border_color = NA)
+
+
+```
+
+##B-D. Phages that infect CAG-1031, Lactobacillus and Turicibacter decreased after spinal cord injury
 ```{r}
 #CAG_1031_phage
 CAG_1031_phage=ggplot(predicted_pOTUs_genus4, aes(x=Zones, y=`g__CAG-1031`))+ geom_boxplot(fill=c("#999999", "#E69F00", "#56B4E9"))+geom_dotplot(binaxis='y', stackdir='center', dotsize=0.6)+
@@ -957,7 +1096,7 @@ Turicibacter_boxplot+scale_y_continuous(expand = c(0,0), limits = c(0,22))+geom_
   theme(plot.margin=unit(c(1,1,1.5,1.2),"cm"))+theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))
 ```
 
-##B. Phages that infect Weissella and Lactococcus increased after spinal cord injury.
+##E,F. Phages that infect Weissella and Lactococcus increased after spinal cord injury.
 ```{r}
  #Weissella_phage
 Weissella_phage=ggplot(predicted_pOTUs_genus4, aes(x=Zones, y=g__Weissella))+ geom_boxplot(fill=c("#999999", "#E69F00", "#56B4E9"))+geom_dotplot(binaxis='y', stackdir='center', dotsize=0.6)+
@@ -976,15 +1115,15 @@ Lactococcus_boxplot+scale_y_continuous(expand = c(0,0), limits = c(0,25))+geom_s
 #The central line in each box represents the median value of the data set. 
 ```
 
-##C. Phages that infect members in class Clostridia were altered after spinal cord injury.
+##G. Phages that infect members in class Clostridia were altered after spinal cord injury.
 ```{r}
-predicted_pOTUs_Clostridia=data_frame(predicted_pOTUs_genus4$g__Acutalibacter,predicted_pOTUs_genus4$g__UBA7182,predicted_pOTUs_genus4$g__ASF356,predicted_pOTUs_genus4$g__Clostridium_AJ,predicted_pOTUs_genus4$g__UBA7160,predicted_pOTUs_genus4$`g__CAG-56`,predicted_pOTUs_genus4$g__UBA3282,predicted_pOTUs_genus4$g__Eubacterium_R,singleM_genus$Zones)
+predicted_pOTUs_Clostridia=data_frame(predicted_pOTUs_genus4$g__Acutalibacter,predicted_pOTUs_genus4$g__ASF356,predicted_pOTUs_genus4$g__UBA7160,predicted_pOTUs_genus4$g__UBA3282,predicted_pOTUs_genus4$g__Eubacterium_R,singleM_genus$Zones)
 
-colnames(predicted_pOTUs_Clostridia)=c("Acutalibacter","UBA7182","ASF356","Clostridium_AJ","UBA7160","CAG-56","UBA3282","Eubacterium_R","Zones")
+colnames(predicted_pOTUs_Clostridia)=c("Acutalibacter","ASF356","UBA7160","UBA3282","Eubacterium_R","Zones")
 row.names(predicted_pOTUs_Clostridia)=row.names(singleM_genus)
 predicted_pOTUs_Clostridia1=gather(predicted_pOTUs_Clostridia,key="Clostridia",value = "abundances",-Zones)
 
-predicted_pOTUs_Clostridia1$Clostridia=factor(predicted_pOTUs_Clostridia1$Clostridia,levels=c("UBA7182","ASF356","UBA7160","Clostridium_AJ","CAG-56","UBA3282","Acutalibacter","Eubacterium_R"))
+predicted_pOTUs_Clostridia1$Clostridia=factor(predicted_pOTUs_Clostridia1$Clostridia,levels=c("ASF356","UBA7160","UBA3282","Acutalibacter","Eubacterium_R"))
 
 pOTUs_Clostridia_boxplot=ggplot(predicted_pOTUs_Clostridia1, aes(x=Clostridia, y=abundances,fill=factor(Zones)))+theme_classic()+scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9"))+geom_boxplot(position=position_dodge(0.8))+ geom_dotplot(binaxis='y', stackdir='center', position=position_dodge(0.8),binpositions = "bygroup", dotsize=0.4)+labs(title =NULL,x=NULL,y = "Class Clostridia \n relative abundances(%)")+theme_classic()
 
@@ -993,6 +1132,8 @@ pOTUs_Clostridia_boxplot=pOTUs_Clostridia_boxplot+theme(plot.title = element_tex
 pOTUs_Clostridia_boxplot+scale_y_continuous(expand = c(0,0),limits = c(0,100))+geom_text(x=1.275,y=5,label="*",size=8)+geom_text(x=2,y=2,label="**",size=8)+geom_text(x=2.275,y=3,label="*",size=8)+geom_text(x=3,y=15,label="**",size=8)+geom_text(x=3.275,y=10,label="*",size=8)+geom_text(x=4.275,y=19,label="*",size=8)+geom_text(x=5.275,y=70,label="*",size=8)+geom_text(x=6,y=15,label="*",size=8)+geom_text(x=7.275,y=45,label="*",size=8)+geom_text(x=8,y=85,label="**",size=8)+ theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))
 
 ```
+
+
 
 #Supplemental figures
 
@@ -1011,8 +1152,46 @@ category = c("Lam", "T10", "T4"), lty = "blank",fill = c("#999999", "#E69F00", "
 
 ```
 
-##B.Differential abundances of bacterial genera 
-```{r figS2B, fig.height = 12, fig.width = 5, fig.align = "center"}
+##B. Shannon’s H of the microbial communities between the Lam, T4, and T10.
+```{r}
+# Calculating Shannon's "H"
+L2_Shannon=diversity(L2,"shannon")
+L2_Shannon=as.data.frame(L2_Shannon)
+colnames(L2_Shannon)=c("Shannon")
+L2_Shannon1=cbind(L2_Shannon,Colvec_expedition)
+#Pairwise comparisons using Wilcoxon rank sum test 
+pairwise.wilcox.test(L2_Shannon1$Shannon, L2_Shannon1$Zones,p.adjust.method = "BH")
+
+#calculate richness
+L2_richness <- specnumber(L2)
+L2_richness=as.data.frame(L2_richness)
+colnames(L2_richness)=c("Richness")
+L2_richness1=cbind(L2_richness,Colvec_expedition)
+#Pairwise comparisons using Wilcoxon rank sum test 
+pairwise.wilcox.test(L2_richness1$Richness, L2_richness1$Zones,p.adjust.method = "BH")
+
+#calculate eveness 
+L2_evenness <- L2_Shannon/log(L2_richness)
+L2_evenness=as.data.frame(L2_evenness)
+colnames(L2_evenness)=c("Evenness")
+L2_evenness1=cbind(L2_evenness,Colvec_expedition)
+#Pairwise comparisons using Wilcoxon rank sum test 
+pairwise.wilcox.test(L2_evenness1$Evenness, L2_evenness1$Zones,p.adjust.method = "BH")
+
+#Combine theree characters
+L2_diversity=data.frame(L2_Shannon$Shannon,L2_richness$Richness,L2_evenness$Evenness)
+
+#Draw Boxplot
+Boxplot_L2_Shannon=ggplot(L2_Shannon1, aes(x=Zones, y=Shannon)) + geom_boxplot(fill=c("#999999", "#E69F00", "#56B4E9"))+geom_dotplot(binaxis='y', stackdir='center', dotsize=0.6)+
+  labs(title = NULL,x=NULL,y = "Shannon's H")+theme_classic()
+Boxplot_L2_Shannon1=Boxplot_L2_Shannon+theme(plot.title = element_text(size = 28,hjust=0.5))+theme(axis.text.x = element_text(color="black",size = 20))+theme(axis.text.y = element_text(color="black",size = 18),axis.title.y=element_text(size=20))
+Boxplot_L2_Shannon1+scale_y_continuous(expand = c(0,0), limits = c(2.8,4.5))+theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))
+
+```
+
+
+##C.Differential abundances of bacterial genera 
+```{r  fig.height = 12, fig.width = 5, fig.align = "center"}
 #B.Differential abundances of bacterial genera (p<0.05 by Wilcoxon signed-rank test) in either two groups are indicated in red. Each row representing a unique bacterial genus was Z-score normalized. Bacterial genera on the y-axis are clustered using Euclidean distances.  
 #use pheatmap
 cal_z_score <- function(x){
@@ -1025,27 +1204,29 @@ pheatmap(genus_singleM_norm,cluster_cols=FALSE, legend = TRUE,annotation_col = m
 
 ```
 
+##D rare genera relative abundance(%) FDR<0.05
 ```{r}
-singleM_genus_rare=data_frame(singleM_genus$Clostridium_M,singleM_genus$Eubacterium_I,singleM_genus$Slackia,singleM_genus$`CAG-791`,singleM_genus$Pseudooceanicola,singleM_genus$Ruminococcus,singleM_genus$Flavonifractor,singleM_genus$Zones)
+
+singleM_genus_rare=data_frame(singleM_genus$Clostridium_M,singleM_genus$Eubacterium_I,singleM_genus$Slackia,singleM_genus$`CAG-791`, singleM_genus$Flavonifractor,singleM_genus$Zones)
 rownames(singleM_genus_rare)=rownames(singleM_genus)
 
-colnames(singleM_genus_rare)=c("Clostridium_M","Eubacterium_I","Slackia","CAG-791","Pseudooceanicola","Ruminococcus","Flavonifractor","Zones")
+colnames(singleM_genus_rare)=c("Clostridium_M","Eubacterium_I","Slackia","CAG-791","Flavonifractor","Zones")
 
 singleM_genus_rare1=gather(singleM_genus_rare,key="Rare",value = "abundances",-Zones)
 
-singleM_genus_rare1$Rare=factor(singleM_genus_rare1$Rare,levels=c("Clostridium_M","Eubacterium_I","Flavonifractor","Slackia","CAG-791","Ruminococcus","Pseudooceanicola"))
+singleM_genus_rare1$Rare=factor(singleM_genus_rare1$Rare,levels=c("Clostridium_M","Eubacterium_I","Flavonifractor","Slackia","CAG-791"))
 
 genus_rare_boxplot=ggplot(singleM_genus_rare1, aes(x=Rare, y=abundances,fill=factor(Zones)))+theme_classic()+scale_fill_manual(values=c("#999999", "#E69F00", "#56B4E9"))+geom_boxplot(position=position_dodge(0.8))+ geom_dotplot(binaxis='y', stackdir='center', position=position_dodge(0.8),binpositions = "bygroup", dotsize=0.4)+labs(title =NULL,x=NULL,y = "Class Clostridia \n relative abundances(%)")+theme_classic()
 
 genus_rare_boxplot=genus_rare_boxplot+theme(plot.title = element_text(size = 28,hjust=0.5))+theme(axis.text.x = element_text(color="black",size = 10,angle=45,hjust = 1))+theme(axis.text.y = element_text(color="black",size = 10),axis.title.y=element_text(size=12))
 
-genus_rare_boxplot+scale_y_continuous(expand = c(0,0), limits = c(0,0.6))+geom_segment(y=0.5,yend=0.5,x=0.75,xend=1)+geom_text(x=0.875,y=0.5,label="*",size=6)+geom_segment(y=0.29,yend=0.29,x=1,xend=1.25)+geom_text(x=1.125,y=0.29,label="*",size=6)+geom_segment(y=0.31,yend=0.31,x=2,xend=2.25)+geom_text(x=2.125,y=0.31,label="**",size=6)+geom_segment(y=0.23,yend=0.23,x=2.75,xend=3)+geom_text(x=2.875,y=0.23,label="*",size=6)+geom_segment(y=0.11,yend=0.11,x=3.75,xend=4)+geom_text(x=3.875,y=0.11,label="*",size=6)+geom_segment(y=0.11,yend=0.11,x=5,xend=5.25)+geom_text(x=5.125,y=0.11,label="**",size=6)+geom_segment(y=0.135,yend=0.135,x=5.75,xend=6)+geom_text(x=5.875,y=0.135,label="*",size=6)+geom_segment(y=0.03,yend=0.03,x=6.75,xend=7)+geom_text(x=6.875,y=0.03,label="*",size=6)+theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))
+genus_rare_boxplot+scale_y_continuous(expand = c(0,0), limits = c(0,0.55))+geom_segment(y=0.5,yend=0.5,x=0.75,xend=1)+geom_text(x=0.875,y=0.5,label="*",size=6)+geom_segment(y=0.29,yend=0.29,x=1,xend=1.25)+geom_text(x=1.125,y=0.29,label="*",size=6)+geom_segment(y=0.31,yend=0.31,x=2,xend=2.25)+geom_text(x=2.125,y=0.31,label="**",size=6)+geom_segment(y=0.23,yend=0.23,x=2.75,xend=3)+geom_text(x=2.875,y=0.23,label="*",size=6)+geom_segment(y=0.11,yend=0.11,x=3.75,xend=4)+geom_text(x=3.875,y=0.11,label="*",size=6)+geom_segment(y=0.11,yend=0.11,x=5,xend=5.25)+geom_text(x=5.125,y=0.11,label="**",size=6)+theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))
 
 ```
 
 
 #Figure S3. Species-level differential abundance analysis of bacteria across three treatment groups.
-```{r figS3, fig.height = 8, fig.width = 6, fig.align = "center"}
+```{r , fig.height = 12, fig.width = 5, fig.align = "center"}
 #Differential abundances of bacterial species (p<0.05 by Wilcoxon signed-rank test) in either two groups are indicated in red. Each row representing a unique bacterial genus was Z-score normalized.
 
 mOTUs_species=read.table("MAGs_species.txt",header=T,row.names=1,sep="\t")
@@ -1063,24 +1244,40 @@ pheatmap(mOTUs_species_norm,cluster_cols=FALSE, annotation_col = my_sample_col,l
 
 ```
 
-#Figure S4. Predicted metabolic pathways are different between Lam controls and SCI groups. 
 
+```{r}
+# Calculating Shannon's "H"
+unique_PCs_Shannon=diversity(t_unique_PCs,"shannon")
+unique_PCs_Shannon=as.data.frame(unique_PCs_Shannon)
+colnames(unique_PCs_Shannon)=c("Shannon")
+unique_PCs_Shannon1=cbind(unique_PCs_Shannon,Colvec_expedition)
+#Pairwise comparisons using Wilcoxon rank sum test 
+pairwise.wilcox.test(unique_PCs_Shannon1$Shannon, unique_PCs_Shannon1$Zones,p.adjust.method = "BH")
+```
+#Figure S4. Predicted metabolic pathways are different between Lam controls and SCI groups. 
+##A.Shannon’s H of the microbial functions between the Lam, T4, and T10.
+```{r}
+#Draw Boxplot
+Boxplot_unique_PCs_Shannon=ggplot(unique_PCs_Shannon1, aes(x=Zones, y=Shannon)) + geom_boxplot(fill=c("#999999", "#E69F00", "#56B4E9"))+geom_dotplot(binaxis='y', stackdir='center', dotsize=0.6)+
+  labs(title = NULL,x=NULL,y = "Shannon's H")+theme_classic()
+
+
+Boxplot_unique_PCs_Shannon1=Boxplot_unique_PCs_Shannon+theme(plot.title = element_text(size = 28,hjust=0.5))+theme(axis.text.x = element_text(color="black",size = 20))+theme(axis.text.y = element_text(color="black",size = 18),axis.title.y=element_text(size=20))
+
+Boxplot_unique_PCs_Shannon1+scale_y_continuous(expand = c(0,0), limits = c(9.5,10.5))+theme(axis.title.y = element_text(margin = margin(t = 0, r = 20, b = 0, l = 0)))
+
+```
+
+
+```{r}
 ##carbohydrate metabolism
-```{r , fig.height = 8, fig.width = 6, fig.align = "center"}
 KEGG_carbohydrate=read.csv("mean_KEGGFUN_wilcox_0.05_carbohydrate_metabolism.csv",header=T,sep=",")
 rownames(KEGG_carbohydrate)=KEGG_carbohydrate[,1]
 KEGG_carbohydrate1=KEGG_carbohydrate[,-(1:2)]
-cal_z_score <- function(x){
-  (x - mean(x)) / sd(x)
-}
-KEGG_carbohydrate1_norm <- t(apply(KEGG_carbohydrate1, 1, cal_z_score))
-
-my_sample_col <-  data.frame(sample = rep(c("Lam","T10","T4"), each=5))
-row.names(my_sample_col) <- colnames(KEGG_carbohydrate1_norm)
-pheatmap(KEGG_carbohydrate1_norm,annotation_col=my_sample_col,show_colnames = F, show_rownames = T,legend = TRUE, cluster_rows = T,cluster_cols = F,border_color = NA,cellwidth = 12, cellheight = 15, main="Carbohydrate Metabolism")
 ```
 
 ```{r}
+#Statistics analysis
 #Lam and T4
 KEGG_carbohydrate_functions1 <- KEGG_carbohydrate1[,c(idx_Lam, idx_T4)]
 clin.sub_KEGG_carbohydrate_functions1 <-  data.frame(ID = 1:ncol(KEGG_carbohydrate_functions1), group = rep(c("Lam","T4"), each=5))
@@ -1197,17 +1394,33 @@ pairwise.wilcox.test(KEGG_carbohydrate3$`putative family 31 glucosidase`, KEGG_c
 pairwise.wilcox.test(KEGG_carbohydrate3$`sugar fermentation stimulation protein A`, KEGG_carbohydrate3$Zones,p.adjust.method = "fdr")
 ```
 
+##carbohydrate metabolism
+```{r , fig.height = 15, fig.width = 10, fig.align = "center"}
+#Use FDR<0.05
+KEGG_carbohydrate_new=read.csv("mean_KEGGFUN_FDR_0.05_carbohydrate_metabolism.csv",header=T,sep=",")
+rownames(KEGG_carbohydrate_new)=KEGG_carbohydrate_new[,1]
+KEGG_carbohydrate_new1=KEGG_carbohydrate_new[,-(1:2)]
+cal_z_score <- function(x){
+  (x - mean(x)) / sd(x)
+}
+KEGG_carbohydrate_new1_norm <- t(apply(KEGG_carbohydrate_new1, 1, cal_z_score))
 
-```{r , fig.height = 8, fig.width = 6, fig.align = "center"}
+my_sample_col <-  data.frame(sample = rep(c("Lam","T10","T4"), each=5))
+row.names(my_sample_col) <- colnames(KEGG_carbohydrate_new1_norm)
+#pdf(file = "carbohydrate_metabolism", 
+   # width = 10, # The width of the plot in inches
+   # height = 15)
+pheatmap(KEGG_carbohydrate_new1_norm,annotation_col=my_sample_col,show_colnames = F, show_rownames = T,legend = TRUE, cluster_rows = T,cluster_cols = F,border_color = NA,cellwidth = 12, cellheight = 15, main="Carbohydrate Metabolism")
+
+```
+
+
+```{r}
+##energy_metabolism
 KEGG_energy=read.csv("mean_KEGGFUN_wilcox_0.05_energy_metabolism.csv",header=T,sep=",")
 rownames(KEGG_energy)=KEGG_energy[,1]
 KEGG_energy1=KEGG_energy[,-(1:2)]
 
-KEGG_energy1_norm <- t(apply(KEGG_energy1, 1, cal_z_score))
-
-my_sample_col <-  data.frame(sample = rep(c("Lam","T10","T4"), each=5))
-row.names(my_sample_col) <- colnames(KEGG_energy1_norm)
-pheatmap(KEGG_energy1_norm,annotation_col=my_sample_col,show_colnames = F, show_rownames = T,legend = TRUE, cluster_rows = T,cluster_cols = F,border_color = NA,cellwidth = 12, cellheight = 15, main="Energy Metabolism")
 ```
 
 ```{r}
@@ -1280,17 +1493,30 @@ pairwise.wilcox.test(KEGG_energy3$`phenylacetic acid degradation protein`, KEGG_
 pairwise.wilcox.test(KEGG_energy3$`Cu2+-exporting ATPase [EC:3.6.3.4]`, KEGG_energy3$Zones,p.adjust.method = "fdr")
 ```
 
+##energy_metabolism
+```{r , fig.height = 15, fig.width = 10, fig.align = "center"}
+KEGG_energy_new=read.csv("mean_KEGGFUN_FDR_0.05_energy_metabolism.csv",header=T,sep=",")
+rownames(KEGG_energy_new)=KEGG_energy_new[,1]
+KEGG_energy_new1=KEGG_energy_new[,-(1:2)]
+
+KEGG_energy_new1_norm <- t(apply(KEGG_energy_new1, 1, cal_z_score))
+
+my_sample_col <-  data.frame(sample = rep(c("Lam","T10","T4"), each=5))
+row.names(my_sample_col) <- colnames(KEGG_energy_new1_norm)
+#pdf(file = "energy_metabolism", 
+    #width = 10, # The width of the plot in inches
+    #height = 15)
+
+pheatmap(KEGG_energy_new1_norm,annotation_col=my_sample_col,show_colnames = F, show_rownames = T,legend = TRUE, cluster_rows = T,cluster_cols = F,border_color = NA,cellwidth = 12, cellheight = 15, main="Energy Metabolism")
+
+```
+
+
 ##amino acid metabolism
-``````{r , fig.height = 8, fig.width = 6, fig.align = "center"}
+```{r}
 KEGG_amino_acid=read.csv("mean_KEGGFUN_wilcox_0.05_amino.acids.csv",header=T,sep=",")
 rownames(KEGG_amino_acid)=KEGG_amino_acid[,1]
 KEGG_amino_acid1=KEGG_amino_acid[,-(1:2)]
-
-KEGG_amino_acid1_norm <- t(apply(KEGG_amino_acid1, 1, cal_z_score))
-my_sample_col <-  data.frame(sample = rep(c("Lam","T10","T4"), each=5))
-row.names(my_sample_col) <- colnames(KEGG_amino_acid1_norm)
-
-pheatmap(KEGG_amino_acid1_norm,annotation_col=my_sample_col,show_colnames = F, show_rownames = T,legend = TRUE, cluster_rows = T,cluster_cols = F,border_color = NA,cellwidth = 12, cellheight = 15,main="Amino Acid Metabolism")
 ```
 
 
@@ -1372,17 +1598,28 @@ pairwise.wilcox.test(KEGG_amino_acid3$`phosphinothricin acetyltransferase [EC:2.
 pairwise.wilcox.test(KEGG_amino_acid3$`glyoxylase I family protein`, KEGG_amino_acid3$Zones,p.adjust.method = "fdr")
 ```
 
+##amino_acid_metabolism
+```{r, fig.height = 15, fig.width = 10, fig.align = "center"}
+KEGG_amino_acid_new=read.csv("mean_KEGGFUN_FDR_0.05_amino.acids.csv",header=T,sep=",")
+rownames(KEGG_amino_acid_new)=KEGG_amino_acid_new[,1]
+KEGG_amino_acid_new1=KEGG_amino_acid_new[,-(1:2)]
 
-``````{r, fig.height = 8, fig.width = 6, fig.align = "center"}
+KEGG_amino_acid_new1_norm <- t(apply(KEGG_amino_acid_new1, 1, cal_z_score))
+my_sample_col <-  data.frame(sample = rep(c("Lam","T10","T4"), each=5))
+row.names(my_sample_col) <- colnames(KEGG_amino_acid_new1_norm)
+#pdf(file="Amino Acid Metabolism", 
+         #width = 10, # The width of the plot in inches
+   # height = 15)
+pheatmap(KEGG_amino_acid_new1_norm,annotation_col=my_sample_col,show_colnames = F, show_rownames = T,legend = TRUE, cluster_rows = T,cluster_cols = F,border_color = NA,cellwidth = 12, cellheight = 15,main="Amino Acid Metabolism")
+
+```
+
+
+```{r, fig.height = 15, fig.width = 10, fig.align = "center"}
 ##lipid metabolism
 KEGG_lipid=read.csv("mean_KEGGFUN_wilcox_0.05_Lipid.Metabolism.csv",header=T,sep=",")
 rownames(KEGG_lipid)=KEGG_lipid[,1]
 KEGG_lipid1=KEGG_lipid[,-(1:2)]
-
-KEGG_lipid1_norm <- t(apply(KEGG_lipid1, 1, cal_z_score))
-my_sample_col <-  data.frame(sample = rep(c("Lam","T10","T4"), each=5))
-row.names(my_sample_col) <- colnames(KEGG_lipid1_norm)
-pheatmap(KEGG_lipid1_norm,annotation_col=my_sample_col,show_colnames = F, show_rownames = T,legend = TRUE,border_color = NA,cluster_cols = F,cellwidth = 12, cellheight = 15,main="Lipid Metabolism")
 ```
 
 ```{r}
@@ -1446,16 +1683,26 @@ pairwise.wilcox.test(KEGG_lipid3$`arylsulfatase [EC:3.1.6.1]`, KEGG_lipid3$Zones
 
 ```
 
+##lipid metabolism
+```{r , fig.height = 15, fig.width = 10, fig.align = "center"}
+##lipid metabolism
+KEGG_lipid_new=read.csv("mean_KEGGFUN_FDR_0.05_Lipid.Metabolism.csv",header=T,sep=",")
+rownames(KEGG_lipid_new)=KEGG_lipid_new[,1]
+KEGG_lipid_new1=KEGG_lipid_new[,-(1:2)]
+
+KEGG_lipid_new1_norm <- t(apply(KEGG_lipid_new1, 1, cal_z_score))
+my_sample_col <-  data.frame(sample = rep(c("Lam","T10","T4"), each=5))
+row.names(my_sample_col) <- colnames(KEGG_lipid_new1_norm)
+#pdf(file="Lipid Metabolism",height = 15,width = 10)
+pheatmap(KEGG_lipid_new1_norm,show_colnames = F, show_rownames = T,legend = TRUE,border_color = NA,cluster_cols = F,cellwidth = 12, cellheight = 15,main="Lipid Metabolism")
+```
+
+
 ```{r}
 ##enzyme metabolism
 KEGG_enzyme=read.csv("mean_KEGGFUN_wilcox_0.05_enzyme.families.csv",header=T,sep=",")
 rownames(KEGG_enzyme)=KEGG_enzyme[,1]
 KEGG_enzyme1=KEGG_enzyme[,-(1:2)]
-
-KEGG_enzyme1_norm <- t(apply(KEGG_enzyme1, 1, cal_z_score))
-my_sample_col <-  data.frame(sample = rep(c("Lam","T10","T4"), each=5))
-row.names(my_sample_col) <- colnames(KEGG_enzyme1_norm)
-pheatmap(KEGG_enzyme1_norm,annotation_col=my_sample_col,show_colnames = F, show_rownames = T,legend = TRUE,border_color = NA,cluster_cols = F,cellwidth = 12, cellheight = 15, main="Energy Metabolism")
 ```
 
 ```{r}
@@ -1518,20 +1765,28 @@ pairwise.wilcox.test(KEGG_enzyme3$`two-component system, OmpR family, sensor kin
 pairwise.wilcox.test(KEGG_enzyme3$`two-component system, AgrA family, sensor histidine kinase AgrC`, KEGG_lipid3$Zones,p.adjust.method = "fdr")
 pairwise.wilcox.test(KEGG_enzyme3$`two-component system, NtrC family, sensor histidine kinase HydH`, KEGG_lipid3$Zones,p.adjust.method = "fdr")
 pairwise.wilcox.test(KEGG_enzyme3$`serine/threonine-protein kinase WNK1 [EC:2.7.11.1]`, KEGG_lipid3$Zones,p.adjust.method = "fdr")
+```
+##enzyme metabolism
+```{r , fig.height = 15, fig.width = 10, fig.align = "center"}
+KEGG_enzyme_new=read.csv("mean_KEGGFUN_FDR_0.05_enzyme.families.csv",header=T,sep=",")
+rownames(KEGG_enzyme_new)=KEGG_enzyme_new[,1]
+KEGG_enzyme_new1=KEGG_enzyme_new[,-(1:2)]
 
+KEGG_enzyme_new1_norm <- t(apply(KEGG_enzyme_new1, 1, cal_z_score))
+my_sample_col <-  data.frame(sample = rep(c("Lam","T10","T4"), each=5))
+row.names(my_sample_col) <- colnames(KEGG_enzyme_new1_norm)
+pdf(file="Enzyme metabolism",height = 15,width=10)
+pheatmap(KEGG_enzyme_new1_norm,annotation_col=my_sample_col,show_colnames = F, show_rownames = T,legend = TRUE,border_color = NA,cluster_cols = F,cellwidth = 12, cellheight = 15, main="Enzyme Metabolism")
 
 ```
+
+
 
 ```{r}
 ##cofactors metabolism
 KEGG_cofactors=read.csv("mean_KEGGFUN_wilcox_0.05_Metabolism.of.Cofactors.csv",header=T,sep=",")
 rownames(KEGG_cofactors)=KEGG_cofactors[,1]
 KEGG_cofactors1=KEGG_cofactors[,-(1:2)]
-
-KEGG_cofactors1_norm <- t(apply(KEGG_cofactors1, 1, cal_z_score))
-my_sample_col <-  data.frame(sample = rep(c("Lam","T10","T4"), each=5))
-row.names(my_sample_col) <- colnames(KEGG_cofactors1_norm)
-pheatmap(KEGG_cofactors1_norm,annotation_col=my_sample_col,show_colnames = F, show_rownames = T,legend = TRUE,cluster_cols = F,border_color = NA,cellwidth = 12, cellheight = 15,main="Cofactors Metabolism")
 ```
 
 ```{r}
@@ -1600,6 +1855,21 @@ pairwise.wilcox.test(KEGG_cofactors3$`pyridoxine 4-dehydrogenase [EC:1.1.1.65]`,
 pairwise.wilcox.test(KEGG_cofactors3$`starvation sensing protein RspA`, KEGG_cofactors3$Zones,p.adjust.method = "fdr")
 
 ```
+
+##cofactors metabolism
+```{r , fig.height = 15, fig.width = 10, fig.align = "center"}
+##cofactors metabolism
+KEGG_cofactors_new=read.csv("mean_KEGGFUN_FDR_0.05_Metabolism.of.Cofactors.csv",header=T,sep=",")
+rownames(KEGG_cofactors_new)=KEGG_cofactors_new[,1]
+KEGG_cofactors_new1=KEGG_cofactors_new[,-(1:2)]
+
+KEGG_cofactors_new1_norm <- t(apply(KEGG_cofactors_new1, 1, cal_z_score))
+my_sample_col <-  data.frame(sample = rep(c("Lam","T10","T4"), each=5))
+row.names(my_sample_col) <- colnames(KEGG_cofactors_new1_norm)
+pdf(file="Cofactors Metabolism",height = 15,width = 10)
+pheatmap(KEGG_cofactors_new1_norm,annotation_col=my_sample_col,show_colnames = F, show_rownames = T,legend = TRUE,cluster_cols = F,border_color = NA,cellwidth = 12, cellheight = 15,main="Cofactors Metabolism")
+```
+
 
 ```{r}
 ##glycan biosynthesis and metabolism
@@ -1671,6 +1941,24 @@ pairwise.wilcox.test(KEGG_Glycan3$`serine/alanine adding enzyme [EC:2.3.2.10]`, 
 pairwise.wilcox.test(KEGG_Glycan3$`(heptosyl)LPS beta-1,4-glucosyltransferase [EC:2.4.1.-]`, KEGG_Glycan3$Zones,p.adjust.method = "fdr")
 
 ```
+
+##glycan biosynthesis and metabolism
+
+``````{r , fig.height = 15, fig.width = 10, fig.align = "center"}
+##glycan biosynthesis and metabolism
+KEGG_Glycan_new=read.csv("mean_KEGGFUN_FDR_0.05_Glycan.Biosynthesis.csv",header=T,sep=",")
+rownames(KEGG_Glycan_new)=KEGG_Glycan_new[,1]
+KEGG_Glycan_new1=KEGG_Glycan_new[,-(1:2)]
+
+KEGG_Glycan_new1_norm <- t(apply(KEGG_Glycan_new1, 1, cal_z_score))
+my_sample_col <-  data.frame(sample = rep(c("Lam","T10","T4"), each=5))
+row.names(my_sample_col) <- colnames(KEGG_Glycan_new1_norm)
+pdf(file="Glycan.Biosynthesis and metabolism", height = 15,width=10)
+pheatmap(KEGG_Glycan_new1_norm,annotation_col=my_sample_col,show_colnames = F, show_rownames = T,legend = TRUE,cluster_cols = F,border_color = NA,cellwidth = 12, cellheight = 15,main="Glycan.Biosynthesis and metabolism")
+```
+
+
+
 
 ```{r}
 ##other metabolisms
@@ -1745,6 +2033,24 @@ pairwise.wilcox.test(KEGG_others3$`4-carboxymuconolactone decarboxylase [EC:4.1.
 pairwise.wilcox.test(KEGG_others3$`4-hydroxy-3-methylbut-2-enyl diphosphate reductase [EC:1.17.1.2]`, KEGG_others3$Zones,p.adjust.method = "fdr")
 ```
 
+
+```{r , fig.height = 15, fig.width = 10, fig.align = "center"}
+##other metabolisms
+KEGG_others_new=read.csv("mean_KEGGFUN_FDR_0.05_Metabolism_others.csv",header=T,sep=",")
+rownames(KEGG_others_new)=KEGG_others_new[,1]
+KEGG_others_new1=KEGG_others_new[,-(1:2)]
+
+KEGG_others_new1_norm <- t(apply(KEGG_others_new1, 1, cal_z_score))
+my_sample_col <-  data.frame(sample = rep(c("Lam","T10","T4"), each=5))
+row.names(my_sample_col) <- colnames(KEGG_others_new1_norm)
+pdf(file="Other Metabolisms",height =15,width=10)
+pheatmap(KEGG_others_new1_norm,annotation_col=my_sample_col,show_colnames = F, show_rownames = T,legend = TRUE,border_color = NA,cluster_cols = F,cellwidth = 12, cellheight = 15,main="Other Metabolisms")
+
+```
+
+
+
+
 #Figure S5. Caudovirales phage abundances increased after spinal cord injury. 
 ```{r}
 ##Fig 1 a Caudovirales phage abundances are altered after spinal cord injury
@@ -1760,6 +2066,9 @@ Caudovirales_order=Caudovirales_order[ ,-1]
 Caudovirales_order1=data.frame(colSums(Caudovirales_order))
 colnames(Caudovirales_order1)=c("Caudovirales")
 Caudovirales_order2=cbind(Caudovirales_order1,Colvec_expedition)
+
+#
+pairwise.wilcox.test(Caudovirales_order2$Caudovirales, Caudovirales_order2$Zones,p.adjust.method = "fdr")
 
 #Reads mapped to Caudovirales are higher in T4
 Caudovirales_order3=ggplot(Caudovirales_order2, aes(x=Zones, y=Caudovirales)) + geom_boxplot(fill=c("#999999", "#E69F00", "#56B4E9"))+geom_dotplot(binaxis='y', stackdir='center', dotsize=0.6)+
