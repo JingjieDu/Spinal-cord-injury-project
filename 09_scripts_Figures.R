@@ -95,16 +95,7 @@ points(L2_bray,cex= 2.5,pch=21, col="black", bg= colvec_all, lwd = 1)
 legend(-2,1, pt.cex=2.5 , pt.lwd = 1, c("Lam", "T10", "T4"), bty = "n", pch = 21, col="black", pt.bg = c("#999999","#E69F00","#56B4E9"), cex = 1.5)
 ordihull(L2_bray,Colvec_expedition$Zones, display = "sites", col = NULL,label=T)
 
-
-
-
-
 ```
-
-
-
-
-
 ##C.Bray_Curtis dissimalarity between the control group and SCI groups
 ```{r}
 Bray_L2_SCI=read.csv("Bray_L2_SCI.csv",header=T,sep=",")
@@ -155,11 +146,6 @@ rare_phylum_singleM_p=ggplot(rare_phylum_singleM_m)+geom_bar(aes(x=Sample,y=valu
 rare_phylum_singleM_p+theme(plot.title = element_text(size = 20,hjust=0.5))+scale_x_discrete(labels=c("1","2","3","4","5","6","7","8","9","10","11","12","13","14","15"))+theme(axis.text.x = element_text(color="black",size = 12))+guides(fill=guide_legend(title=NULL))+theme(legend.title = element_text(size=18))+ theme(legend.text = element_text(size=14),legend.position="right")+guides(fill=guide_legend("Phylum"))+scale_colour_manual(values = c("#A6D854","#FFD92F","#E5C494","#B3B3B3"))
 #On the x-axis, the numbers 1–15 represent individual mice within each group. numbers 1-5 represents Lam, numbers 6-10 represents T10 and numbers 11-15 represents T4
 ```
-
-
-
-
-
 
 ```{r}
 ##Wilcoxon rank sum test for bacterial phyla
